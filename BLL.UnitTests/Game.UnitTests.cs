@@ -107,7 +107,7 @@ namespace BLL.UnitTests
         }
 
         [TestMethod]
-        public void A_Chouette_Should_Earn_The_Players_Points()
+        public void A_Chouette_Should_Earn_The_Correct_Players_Points()
         {
             var game = new Game(3);
             game.NextTurn();
@@ -122,6 +122,24 @@ namespace BLL.UnitTests
             game.CurrentTurnPlayer.Points = 3;
             game.CalculateScore(new List<int> { 1, 2, 2 });
             Assert.AreEqual(7, game.CurrentTurnPlayer.Points);
+        }
+
+        [TestMethod]
+        public void A_Cul_De_Chouette_Should_Earn_The_Correct_Players_Points()
+        {
+            var game = new Game(3);
+            game.NextTurn();
+            game.CalculateScore(new List<int> { 6, 6, 6 });
+            Assert.AreEqual(100, game.CurrentTurnPlayer.Points);
+        }
+
+        [TestMethod]
+        public void A_Velute_Should_Earn_The_Correct_Players_Points()
+        {
+            var game = new Game(3);
+            game.NextTurn();
+            game.CalculateScore(new List<int> { 2, 4, 6 });
+            Assert.AreEqual(72, game.CurrentTurnPlayer.Points);
         }
     }
 }

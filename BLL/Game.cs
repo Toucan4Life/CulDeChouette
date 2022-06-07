@@ -39,16 +39,35 @@ public class Game
 
     public void CalculateScore(IEnumerable<int> dices)
     {
+
         if (dices.Count() != 3)
         {
             throw new ArgumentException($"There should only be 3 dices. Actual dice count : {dices}");
         }
-
+        dices = dices.OrderBy(t => t);
+        //CulDeChouette
+        if (dices.GroupBy(t => t).Count(t => t.Count() == 3) != 0)
+        {
+            var culdechouette = dices.First();
+            CurrentTurnPlayer.Points += 40 + 10 * culdechouette;
+        }
+        //Chouette Velutée
+        //else if (dices.First() == dices.ElementAt(1) && dices.First()+dices.ElementAt(1) == dices.ElementAt(2))
+        //{
+        //    var chouette = dices.GroupBy(t => t).First(t => t.Count() == 2).Key;
+        //    CurrentTurnPlayer.Points += chouette * chouette;
+        //}
         //Chouette
-        if (dices.GroupBy(t=>t).Count(t => t.Count()==2) !=0)
+        else if (dices.GroupBy(t=>t).Count(t => t.Count()==2) !=0)
         {
             var chouette = dices.GroupBy(t => t).First(t => t.Count() == 2).Key;
             CurrentTurnPlayer.Points += chouette * chouette;
+        }
+        //Velute
+        else if (dices.First() + dices.ElementAt(1) == dices.ElementAt(2))
+        {
+            var velute = dices.ElementAt(2);
+            CurrentTurnPlayer.Points += 2 * velute * velute;
         }
     }
 }
