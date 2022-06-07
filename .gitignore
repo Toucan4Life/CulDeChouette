@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/BLL/obj
+/BLL.UnitTests/obj
+/GUIConsole/bin/Debug/net6.0
+/GUIConsole/obj
+/BLL/bin/Debug/net6.0
+/BLL.UnitTests/bin/Debug/net6.0
+/CulDeChouette.sln.DotSettings.user
