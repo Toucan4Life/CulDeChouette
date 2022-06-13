@@ -2,11 +2,11 @@ namespace BLL;
 
 public class Game
 {
-    public IGameUI _userInterface;
+    private readonly IGameUI _userInterface;
 
-    public Game(int playerCount, IGameUI UI)
+    public Game(int playerCount, IGameUI ui)
     {
-        _userInterface = UI;
+        _userInterface = ui;
         CurrentRound = 1;
         CurrentTurn = 1;
         Players = CreatePlayers(playerCount);
@@ -14,10 +14,20 @@ public class Game
 
     public int CurrentTurn { get; set; }
 
+    public List<Player> Players { get; }
+    public bool IsWon => Players.Any(p => p.Points >= 343);
+
+    public Player CurrentTurnPlayer => Players[(CurrentTurn - 1) % Players.Count];
+
+    public int CurrentRound
+    {
+        get => (int) Math.Round((decimal) CurrentTurn / Players.Count, MidpointRounding.ToPositiveInfinity);
+        private set { }
+    }
+
     public void Launch()
     {
         var rnd = new Random();
-
 
         while (!IsWon)
         {
@@ -27,19 +37,15 @@ public class Game
             var secondDice = rnd.Next(1, 7);
             var thirdDice = rnd.Next(1, 7);
 
-            _userInterface.ShowDiceResult(firstDice,secondDice,thirdDice);
+            _userInterface.ShowDiceResult(firstDice, secondDice, thirdDice);
 
-            CurrentTurnPlayer.Points += CalculateScore(new List<int> { firstDice, secondDice, thirdDice });
+            CurrentTurnPlayer.Points += CalculateScore(new List<int> {firstDice, secondDice, thirdDice});
 
             _userInterface.ShowPlayerPoint(CurrentTurnPlayer.Number, CurrentTurnPlayer.Points);
 
-            if (IsWon)
-            {
-                break;
-            }
+            if (IsWon) break;
 
             CurrentTurn++;
-            if (CurrentTurn % Players.Count == 1) CurrentRound++;
         }
 
         _userInterface.ShowWinner(CurrentTurnPlayer.Number, CurrentTurnPlayer.Points, CurrentRound);
@@ -48,31 +54,16 @@ public class Game
     public List<Player> CreatePlayers(int playersNumber)
     {
         if (playersNumber is < 2 or > 6)
-        {
-            throw new ArgumentException($"Players count should be between 2 and 6. Actual player count: {playersNumber}");
-        }
+            throw new ArgumentException(
+                $"Players count should be between 2 and 6. Actual player count: {playersNumber}");
 
         return Enumerable.Range(1, playersNumber).Select(i => new Player(i)).ToList();
     }
 
-    public List<Player> Players { get; set; }
-    public bool IsWon => Players.Any(p => p.Points >= 343);
-
-    public Player CurrentTurnPlayer => Players[(CurrentTurn - 1) % Players.Count];
-
-    public int CurrentRound
-    {
-        get => (int) Math.Round((decimal) CurrentTurn / 3, MidpointRounding.ToPositiveInfinity);
-        private set { }
-    }
-
     public int CalculateScore(IEnumerable<int> dices)
     {
-
         if (dices.Count() != 3)
-        {
             throw new ArgumentException($"There should only be 3 dices. Actual dice count : {dices}");
-        }
         dices = dices.OrderBy(t => t);
         //CulDeChouette
         if (dices.GroupBy(t => t).Count(t => t.Count() == 3) != 0)
@@ -88,7 +79,7 @@ public class Game
         //}
         //Chouette
 
-        if (dices.GroupBy(t=>t).Count(t => t.Count()==2) !=0)
+        if (dices.GroupBy(t => t).Count(t => t.Count() == 2) != 0)
         {
             var chouette = dices.GroupBy(t => t).First(t => t.Count() == 2).Key;
             return chouette * chouette;
@@ -103,14 +94,4 @@ public class Game
 
         return 0;
     }
-}
-
-public class Player
-{
-    public Player(int number)
-    {
-        Number = number;
-    }
-    public int Number { get; set; }
-    public int Points { get; set; }
 }
