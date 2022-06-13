@@ -3,7 +3,10 @@
 using BLL;
 using GUIConsole;
 
-var game = new Game(new ConsoleUI());
+var consoleUi = new ConsoleUI();
+var playerCount = consoleUi.AskPlayerCount();
+
+var game = new Game(playerCount, consoleUi);
 game.Launch();
 
 Console.WriteLine("Press any keys to exit");

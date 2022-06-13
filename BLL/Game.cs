@@ -3,15 +3,13 @@ namespace BLL;
 public class Game
 {
     public IGameUI _userInterface;
-    public int _playersNumber;
 
-    public Game(IGameUI UI)
+    public Game(int playerCount, IGameUI UI)
     {
         _userInterface = UI;
         CurrentRound = 1;
         CurrentTurn = 1;
-        _playersNumber = _userInterface.AskPlayerCount();
-        Players = CreatePlayers(_playersNumber);
+        Players = CreatePlayers(playerCount);
     }
 
     public int CurrentTurn { get; set; }
@@ -41,7 +39,7 @@ public class Game
             }
 
             CurrentTurn++;
-            if (CurrentTurn % _playersNumber == 1) CurrentRound++;
+            if (CurrentTurn % Players.Count == 1) CurrentRound++;
         }
 
         _userInterface.ShowWinner(CurrentTurnPlayer.Number, CurrentTurnPlayer.Points, CurrentRound);
@@ -60,7 +58,7 @@ public class Game
     public List<Player> Players { get; set; }
     public bool IsWon => Players.Any(p => p.Points >= 343);
 
-    public Player CurrentTurnPlayer => Players[(CurrentTurn - 1) % _playersNumber];
+    public Player CurrentTurnPlayer => Players[(CurrentTurn - 1) % Players.Count];
 
     public int CurrentRound
     {
