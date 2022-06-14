@@ -3,12 +3,12 @@ namespace BLL;
 public class Game
 {
     private readonly IGameUI _userInterface;
-    private readonly int _waitTimeForActionInSeconds;
+    private readonly int _waitTimeForActionInMilliSeconds;
 
-    public Game(int playerCount, IGameUI ui, int WaitTimeForActionInSeconds = 5)
+    public Game(int playerCount, IGameUI ui, int WaitTimeForActionInMilliSeconds = 5000)
     {
         _userInterface = ui;
-        _waitTimeForActionInSeconds = WaitTimeForActionInSeconds;
+        _waitTimeForActionInMilliSeconds = WaitTimeForActionInMilliSeconds;
         CurrentRound = 1;
         CurrentTurn = 1;
         Players = CreatePlayers(playerCount);
@@ -81,7 +81,7 @@ public class Game
             ChouetteVeluteeInPlay = true;
             var velute = dices.ElementAt(2);
             ChouetteVeluteeValueInPlay = 2 * velute * velute;
-            Task.Delay(_waitTimeForActionInSeconds).ContinueWith(_ => ChouetteVeluteeInPlay = false);
+            Task.Delay(_waitTimeForActionInMilliSeconds).ContinueWith(_ => ChouetteVeluteeInPlay = false);
             while (ChouetteVeluteeInPlay)
             {
                 await Task.Delay(25);
