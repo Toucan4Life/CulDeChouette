@@ -3,10 +3,12 @@ namespace BLL;
 public class Game
 {
     private readonly IGameUI _userInterface;
+    private readonly int _waitTimeForActionInSeconds;
 
-    public Game(int playerCount, IGameUI ui)
+    public Game(int playerCount, IGameUI ui, int WaitTimeForActionInSeconds = 5)
     {
         _userInterface = ui;
+        _waitTimeForActionInSeconds = WaitTimeForActionInSeconds;
         CurrentRound = 1;
         CurrentTurn = 1;
         Players = CreatePlayers(playerCount);
@@ -17,6 +19,8 @@ public class Game
     public List<Player> Players { get; }
     public bool IsWon => Players.Any(p => p.Points >= 343);
 
+    public bool ChouetteVeluteeInPlay = false;
+    public int ChouetteVeluteeValueInPlay = 0;
     public Player CurrentTurnPlayer => Players[(CurrentTurn - 1) % Players.Count];
 
     public int CurrentRound
@@ -39,7 +43,7 @@ public class Game
 
             _userInterface.ShowDiceResult(firstDice, secondDice, thirdDice);
 
-            CurrentTurnPlayer.Points += CalculateScore(new List<int> {firstDice, secondDice, thirdDice});
+            CurrentTurnPlayer.Points += CalculateScore(new List<int> {firstDice, secondDice, thirdDice}).Result;
 
             _userInterface.ShowPlayerPoint(CurrentTurnPlayer.Number, CurrentTurnPlayer.Points);
 
@@ -60,7 +64,7 @@ public class Game
         return Enumerable.Range(1, playersNumber).Select(i => new Player(i)).ToList();
     }
 
-    public int CalculateScore(IEnumerable<int> dices)
+    public async Task<int> CalculateScore(IEnumerable<int> dices)
     {
         if (dices.Count() != 3)
             throw new ArgumentException($"There should only be 3 dices. Actual dice count : {dices}");
@@ -72,11 +76,17 @@ public class Game
             return 40 + 10 * culdechouette;
         }
         //Chouette Velutée
-        //else if (dices.First() == dices.ElementAt(1) && dices.First()+dices.ElementAt(1) == dices.ElementAt(2))
-        //{
-        //    var chouette = dices.GroupBy(t => t).First(t => t.Count() == 2).Key;
-        //    CurrentTurnPlayer.Points += chouette * chouette;
-        //}
+        if (dices.First() == dices.ElementAt(1) && dices.First() + dices.ElementAt(1) == dices.ElementAt(2))
+        {
+            ChouetteVeluteeInPlay = true;
+            var velute = dices.ElementAt(2);
+            ChouetteVeluteeValueInPlay = 2 * velute * velute;
+            Task.Delay(_waitTimeForActionInSeconds).ContinueWith(_ => ChouetteVeluteeInPlay = false);
+            while (ChouetteVeluteeInPlay)
+            {
+                await Task.Delay(25);
+            }
+        }
         //Chouette
 
         if (dices.GroupBy(t => t).Count(t => t.Count() == 2) != 0)
@@ -93,5 +103,31 @@ public class Game
         }
 
         return 0;
+    }
+
+    public void Shout(Player player, ShoutPhrases shoutedPhrase)
+    {
+        if (ChouetteVeluteeInPlay && shoutedPhrase == ShoutPhrases.PasMouleCaillou)
+        {
+            player.Points += ChouetteVeluteeValueInPlay;
+            ChouetteVeluteeInPlay = false;
+            ChouetteVeluteeValueInPlay = 0;
+        }
+        else
+        {
+            Bevue(player);
+        }
+    }
+
+    private void Bevue(Player player)
+    {
+        player.Points -= 10;
+        _userInterface.BevueCommited(player);
+    }
+
+    public enum ShoutPhrases
+    {
+        PasMouleCaillou,
+        GrelotteCaPicote
     }
 }

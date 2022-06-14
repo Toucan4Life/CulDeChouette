@@ -37,5 +37,10 @@ namespace GUIConsole
             Console.WriteLine("Players count : ");
             return int.Parse(Console.ReadLine() ?? string.Empty);
         }
+
+        public void BevueCommited(Player player)
+        {
+            Console.WriteLine($"Player {player.Number} committed a Bevue !");
+        }
     }
 }

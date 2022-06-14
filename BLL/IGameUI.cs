@@ -13,5 +13,6 @@ namespace BLL
         void ShowWinner(int number, int points, int currentRound);
         void ShowDiceResult(int firstDice, int secondDice, int thirdDice);
         int AskPlayerCount();
+        void BevueCommited(Player player);
     }
 }
